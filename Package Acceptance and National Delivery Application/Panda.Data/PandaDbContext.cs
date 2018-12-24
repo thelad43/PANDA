@@ -9,5 +9,15 @@
             : base(options)
         {
         }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder builder)
+        {
+            base.OnConfiguring(builder);
+        }
+
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+        }
     }
 }

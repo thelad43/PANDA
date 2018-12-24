@@ -31,9 +31,17 @@
             services.AddDbContext<PandaDbContext>(options => options
                 .UseSqlServer(this.Configuration.GetConnectionString("DefaultConnection")));
 
-            services.AddDefaultIdentity<IdentityUser>()
-                .AddDefaultUI(UIFramework.Bootstrap4)
-                .AddEntityFrameworkStores<PandaDbContext>();
+            services.AddDefaultIdentity<IdentityUser>(options =>
+            {
+                options.Password.RequireDigit = false;
+                options.Password.RequireLowercase = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequireNonAlphanumeric = false;
+                options.User.RequireUniqueEmail = true;
+            })
+            .AddDefaultUI(UIFramework.Bootstrap4)
+            .AddEntityFrameworkStores<PandaDbContext>()
+            .AddDefaultTokenProviders();
 
             services.AddResponseCompression();
 
