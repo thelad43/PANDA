@@ -20,6 +20,12 @@
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
+            builder
+                .Entity<User>()
+                .HasMany(u => u.Packages)
+                .WithOne(p => p.Recipient)
+                .HasForeignKey(p => p.RecipientId);
+
             base.OnModelCreating(builder);
         }
     }

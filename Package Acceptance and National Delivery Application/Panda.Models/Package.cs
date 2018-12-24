@@ -1,7 +1,6 @@
 ﻿namespace Panda.Models
 {
     using Enums;
-    using Microsoft.AspNetCore.Identity;
     using System;
 
     public class Package
@@ -20,6 +19,6 @@
 
         public string RecipientId { get; set; }
 
-        public IdentityUser Recipient { get; set; }
+        public User Recipient { get; set; }
     }
 }
