@@ -2,6 +2,7 @@
 {
     using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore;
+    using Models;
 
     public class PandaDbContext : IdentityDbContext
     {
@@ -9,6 +10,8 @@
             : base(options)
         {
         }
+
+        public DbSet<Package> Packages { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder builder)
         {

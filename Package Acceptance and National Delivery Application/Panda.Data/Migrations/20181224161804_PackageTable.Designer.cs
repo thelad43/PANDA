@@ -5,13 +5,14 @@ namespace Panda.Data.Migrations
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Infrastructure;
     using Microsoft.EntityFrameworkCore.Metadata;
-    using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+    using Microsoft.EntityFrameworkCore.Migrations;
     using Panda.Data;
 
     [DbContext(typeof(PandaDbContext))]
-    partial class PandaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20181224161804_PackageTable")]
+    partial class PackageTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
