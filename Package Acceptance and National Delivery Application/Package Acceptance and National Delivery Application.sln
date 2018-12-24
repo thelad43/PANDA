@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.136
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Panda.Web", "Panda.Web\Panda.Web.csproj", "{CF92912B-6199-43CD-8D0C-94F897734BED}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Panda.Data", "Panda.Data\Panda.Data.csproj", "{A92836E8-5C42-40CE-A455-F1AEBE8D7C0F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Panda.Models", "Panda.Models\Panda.Models.csproj", "{DD4EE517-EC92-4E29-A9A9-7703DF8884D5}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CF92912B-6199-43CD-8D0C-94F897734BED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CF92912B-6199-43CD-8D0C-94F897734BED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CF92912B-6199-43CD-8D0C-94F897734BED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CF92912B-6199-43CD-8D0C-94F897734BED}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A92836E8-5C42-40CE-A455-F1AEBE8D7C0F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A92836E8-5C42-40CE-A455-F1AEBE8D7C0F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A92836E8-5C42-40CE-A455-F1AEBE8D7C0F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A92836E8-5C42-40CE-A455-F1AEBE8D7C0F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DD4EE517-EC92-4E29-A9A9-7703DF8884D5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DD4EE517-EC92-4E29-A9A9-7703DF8884D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DD4EE517-EC92-4E29-A9A9-7703DF8884D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DD4EE517-EC92-4E29-A9A9-7703DF8884D5}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {0C20A560-C961-46E1-BA3B-B57238CB2F6E}
+	EndGlobalSection
+EndGlobal
