@@ -48,7 +48,10 @@
             services.AddRouting(options => options.LowercaseUrls = true);
 
             services
-                .AddMvc()
+                .AddMvc(options =>
+                {
+                    options.Filters.Add<AutoValidateAntiforgeryTokenAttribute>();
+                })
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
 
