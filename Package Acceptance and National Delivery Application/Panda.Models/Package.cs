@@ -20,5 +20,9 @@
         public string RecipientId { get; set; }
 
         public User Recipient { get; set; }
+
+        public int ReceiptId { get; set; }
+
+        public Receipt Receipt { get; set; }
     }
 }
