@@ -46,6 +46,7 @@
             .AddDefaultTokenProviders();
 
             services.AddResponseCompression();
+            services.AddDomainServices();
 
             services.AddRouting(options => options.LowercaseUrls = true);
 
