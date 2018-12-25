@@ -11,6 +11,7 @@
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Panda.Models;
+    using Panda.Web.Infrastructure.Extensions;
 
     public class Startup
     {
@@ -69,6 +70,7 @@
                 app.UseHsts();
             }
 
+            app.UseDatabaseMigration();
             app.UseHttpsRedirection();
             app.UseResponseCompression();
             app.UseStaticFiles();
