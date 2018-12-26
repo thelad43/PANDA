@@ -5,6 +5,8 @@
 
     public class PackageListingViewModel
     {
+        public bool IsAuthenticated { get; set; }
+
         public IEnumerable<PackageListingServiceModel> Pending { get; set; }
 
         public IEnumerable<PackageListingServiceModel> Shipped { get; set; }

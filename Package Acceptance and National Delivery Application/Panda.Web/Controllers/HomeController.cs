@@ -24,6 +24,11 @@
         {
             var user = await this.userManager.GetUserAsync(HttpContext.User);
 
+            if (user == null)
+            {
+                return View(new PackageListingViewModel { IsAuthenticated = false });
+            }
+
             var pending = await this.packages.PendingForUserAsync(user);
             var shipped = await this.packages.ShippedForUserAsync(user);
             var delivered = await this.packages.DeliveredForUserAsync(user);

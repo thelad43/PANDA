@@ -1,0 +1,14 @@
+﻿@model IEnumerable<PackageListingServiceModel>
+
+<table>
+    @foreach (var package in Model)
+    {
+        <tr>
+            <td><h5>@package.Description</h5></td>
+            <td>
+                <a asp-area="" asp-controller="Packages" asp-action="Details" asp-route-id="@(package.Id)"
+                    class="btn btn-sm bg-panda text-white" style="margin-left:70px">Details</a>
+            </td>
+        </tr>
+    }
+</table>
