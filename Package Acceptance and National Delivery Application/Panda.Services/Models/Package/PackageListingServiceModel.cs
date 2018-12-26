@@ -1,4 +1,4 @@
-﻿namespace Panda.Services.Models
+﻿namespace Panda.Services.Models.Package
 {
     public class PackageListingServiceModel
     {

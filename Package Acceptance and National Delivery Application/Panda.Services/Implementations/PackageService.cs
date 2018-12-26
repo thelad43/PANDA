@@ -3,10 +3,10 @@
     using Data;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.EntityFrameworkCore;
-    using Models;
     using Panda.Common.Mapping;
     using Panda.Models;
     using Panda.Models.Enums;
+    using Panda.Services.Models.Package;
     using System;
     using System.Collections.Generic;
     using System.Linq;

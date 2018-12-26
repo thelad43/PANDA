@@ -1,6 +1,6 @@
 ﻿namespace Panda.Web.Models.Package
 {
-    using Services.Models;
+    using Panda.Services.Models.Package;
     using System.Collections.Generic;
 
     public class PackageListingViewModel

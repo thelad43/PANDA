@@ -1,7 +1,7 @@
 ﻿namespace Panda.Services
 {
-    using Models;
     using Panda.Models;
+    using Panda.Services.Models.Package;
     using System.Collections.Generic;
     using System.Threading.Tasks;
 

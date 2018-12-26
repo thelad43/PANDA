@@ -1,7 +1,7 @@
 ﻿namespace Panda.Services.Implementations
 {
-    using Models;
     using Panda.Models;
+    using Panda.Services.Models.Receipt;
     using System.Collections.Generic;
     using System.Threading.Tasks;
 
