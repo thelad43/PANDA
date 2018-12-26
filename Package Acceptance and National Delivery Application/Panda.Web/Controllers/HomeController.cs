@@ -37,7 +37,8 @@
             {
                 Pending = pending,
                 Shipped = shipped,
-                Delivered = delivered
+                Delivered = delivered,
+                IsAuthenticated = true
             };
 
             return View(model);
