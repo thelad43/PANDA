@@ -45,6 +45,18 @@
             .AddEntityFrameworkStores<PandaDbContext>()
             .AddDefaultTokenProviders();
 
+            services.AddAuthentication()
+                .AddFacebook(facebookOptions =>
+                {
+                    facebookOptions.AppId = this.Configuration["Authentication:Facebook:AppId"];
+                    facebookOptions.AppSecret = this.Configuration["Authentication:Facebook:AppSecret"];
+                })
+                .AddGoogle(googleOptions =>
+                {
+                    googleOptions.ClientId = this.Configuration["Authentication:Google:ClientId"];
+                    googleOptions.ClientSecret = this.Configuration["Authentication:Google:ClientSecret"];
+                });
+
             services.AddResponseCompression();
             services.AddDomainServices();
 
