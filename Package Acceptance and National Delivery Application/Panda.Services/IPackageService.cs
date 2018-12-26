@@ -7,5 +7,9 @@
     public interface IPackageService
     {
         Task<IEnumerable<PackageListingServiceModel>> PendingForUserAsync(string username);
+
+        Task<IEnumerable<PackageListingServiceModel>> ShippedForUserAsync(string username);
+
+        Task<IEnumerable<PackageListingServiceModel>> DeliveredForUser(string username);
     }
 }

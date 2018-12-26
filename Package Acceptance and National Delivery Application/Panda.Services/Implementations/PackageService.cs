@@ -1,15 +1,16 @@
 ﻿namespace Panda.Services.Implementations
 {
-    using Models;
     using Data;
-    using System.Collections.Generic;
-    using Microsoft.EntityFrameworkCore;
-    using System.Threading.Tasks;
     using Microsoft.AspNetCore.Identity;
-    using Panda.Models;
-    using System;
-    using System.Linq;
+    using Microsoft.EntityFrameworkCore;
+    using Models;
     using Panda.Common.Mapping;
+    using Panda.Models;
+    using Panda.Models.Enums;
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Threading.Tasks;
 
     public class PackageService : IPackageService
     {
@@ -24,7 +25,7 @@
 
         public async Task<IEnumerable<PackageListingServiceModel>> PendingForUserAsync(string username)
         {
-            var user = await this.userManager.FindByNameAsync(username);
+            var user = await this.GetCurrentUser(username);
 
             if (user == null)
             {
@@ -33,11 +34,50 @@
 
             var packages = await this.db
                 .Packages
-                .Where(p => p.RecipientId == user.Id)
+                .Where(p => p.RecipientId == user.Id && p.Status == Status.Pending)
                 .To<PackageListingServiceModel>()
                 .ToListAsync();
 
             return packages;
         }
+
+        public async Task<IEnumerable<PackageListingServiceModel>> ShippedForUserAsync(string username)
+        {
+            var user = await this.GetCurrentUser(username);
+
+            if (user == null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            var packages = await this.db
+                .Packages
+                .Where(p => p.RecipientId == user.Id && p.Status == Status.Shipped)
+                .To<PackageListingServiceModel>()
+                .ToListAsync();
+
+            return packages;
+        }
+
+        public async Task<IEnumerable<PackageListingServiceModel>> DeliveredForUser(string username)
+        {
+            var user = await this.GetCurrentUser(username);
+
+            if (user == null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            var packages = await this.db
+                .Packages
+                .Where(p => p.RecipientId == user.Id && p.Status == Status.Delivered)
+                .To<PackageListingServiceModel>()
+                .ToListAsync();
+
+            return packages;
+        }
+
+        private async Task<User> GetCurrentUser(string username)
+            => await this.userManager.FindByNameAsync(username);
     }
 }
