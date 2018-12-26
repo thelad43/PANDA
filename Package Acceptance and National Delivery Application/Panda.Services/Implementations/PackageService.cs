@@ -71,5 +71,21 @@
 
             return packages;
         }
+
+        public async Task<PackageDetailsServiceModel> DetailsByUser(User user, int id)
+        {
+            var package = await this.db
+                .Packages
+                .Where(p => p.Id == id && p.RecipientId == user.Id)
+                .To<PackageDetailsServiceModel>()
+                .FirstOrDefaultAsync();
+
+            if (package == null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            return package;
+        }
     }
 }
