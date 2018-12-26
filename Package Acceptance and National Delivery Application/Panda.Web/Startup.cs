@@ -1,6 +1,9 @@
 ﻿namespace Panda.Web
 {
+    using AutoMapper;
+    using Common.Mapping;
     using Data;
+    using Infrastructure.Extensions;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Http;
@@ -11,7 +14,7 @@
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Panda.Models;
-    using Panda.Web.Infrastructure.Extensions;
+    using Services;
 
     public class Startup
     {
@@ -57,8 +60,11 @@
                     googleOptions.ClientSecret = this.Configuration["Authentication:Google:ClientSecret"];
                 });
 
+            AutoMapperProfile.RegisterMappings(typeof(IService).Assembly);
+
             services.AddResponseCompression();
             services.AddDomainServices();
+            services.AddAutoMapper();
 
             services.AddRouting(options => options.LowercaseUrls = true);
 
