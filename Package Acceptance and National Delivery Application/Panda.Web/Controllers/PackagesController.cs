@@ -18,10 +18,9 @@
         }
 
         public async Task<IActionResult> Details(int id)
-        {
-            var user = await this.userManager.GetUserAsync(HttpContext.User);
+            => View(await this.packages.DetailsByUser(await this.GetUser(), id));
 
-            return View(await this.packages.DetailsByUser(user, id));
-        }
+        private async Task<User> GetUser()
+            => await this.userManager.GetUserAsync(HttpContext.User);
     }
 }

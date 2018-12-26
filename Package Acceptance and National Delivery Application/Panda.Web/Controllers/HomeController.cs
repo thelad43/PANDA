@@ -22,7 +22,7 @@
 
         public async Task<IActionResult> Index()
         {
-            var user = await this.userManager.GetUserAsync(HttpContext.User);
+            var user = await this.GetUser();
 
             if (user == null)
             {
@@ -54,5 +54,8 @@
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
+
+        private async Task<User> GetUser()
+            => await this.userManager.GetUserAsync(HttpContext.User);
     }
 }

@@ -1,0 +1,39 @@
+﻿@model ReceiptDetailsServiceModel
+
+@{
+    ViewData["Title"] = "Receipt Details";
+}
+
+<h1 class="text-center">@ViewData["Title"]</h1>
+<hr style="height:1px;background-color:#333;" />
+<div class="row">
+    <div class="col-md-2 text-center"><h5>Receipt number: </h5></div>
+    <div class="col-md-9 text-right"><h5>@Model.ReceiptId</h5></div>
+</div>
+<hr style="height:1px;background-color:#333;" />
+<div class="row">
+    <div class="col-md-2 text-left"><h5 style="margin-left:10px">Issued On: </h5></div>
+    <div class="col-md-10 text-right"><h5>@Model.IssuedOn</h5></div>
+</div>
+<div class="row">
+    <div class="col-md-4 text-left"><h5 style="margin-left:10px">Delivery Address: </h5></div>
+    <div class="col-md-7 text-right"><h5>@Model.ShippingAddress</h5></div>
+</div>
+<hr style="height:1px;background-color:#333;" />
+<div class="row">
+    <div class="col-md-4 text-left"><h5 style="margin-left:10px">Package Weight: </h5></div>
+    <div class="col-md-8 text-right"><h5>@Model.Weight</h5></div>
+</div>
+<div class="row">
+    <div class="col-md-4 text-left"><h5 style="margin-left:10px">Package Description: </h5></div>
+    <div class="col-md-8 text-right"><h5>@Model.Description</h5></div>
+</div>
+<div class="row">
+    <div class="col-md-2 text-left"><h5 style="margin-left:10px">Recipient: </h5></div>
+    <div class="col-md-10 text-right"><h5>@Model.RecipientName</h5></div>
+</div>
+<hr style="height:1px;background-color:#333;" />
+<div class="row">
+    <div class="col-md-11 text-right"><h5 style="margin-left:10px">Total: </h5></div>
+    <div class="col-md-1 text-right"><h5>$@Model.Fee</h5></div>
+</div>
