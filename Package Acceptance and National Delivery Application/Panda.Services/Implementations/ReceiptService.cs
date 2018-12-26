@@ -32,6 +32,11 @@
                 .To<ReceiptDetailsServiceModel>()
                 .FirstOrDefaultAsync();
 
+            if (receipt == null)
+            {
+                throw new InvalidOperationException();
+            }
+
             return receipt;
         }
 
@@ -47,7 +52,7 @@
                 .Where(r => r.RecipientId == user.Id)
                 .To<ReceiptServiceModel>()
                 .ToListAsync();
-
+           
             return receipts;
         }
     }
