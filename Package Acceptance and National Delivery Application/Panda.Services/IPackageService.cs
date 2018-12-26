@@ -1,15 +1,16 @@
 ﻿namespace Panda.Services
 {
     using Models;
+    using Panda.Models;
     using System.Collections.Generic;
     using System.Threading.Tasks;
 
     public interface IPackageService
     {
-        Task<IEnumerable<PackageListingServiceModel>> PendingForUserAsync(string username);
+        Task<IEnumerable<PackageListingServiceModel>> PendingForUserAsync(User user);
 
-        Task<IEnumerable<PackageListingServiceModel>> ShippedForUserAsync(string username);
+        Task<IEnumerable<PackageListingServiceModel>> ShippedForUserAsync(User user);
 
-        Task<IEnumerable<PackageListingServiceModel>> DeliveredForUser(string username);
+        Task<IEnumerable<PackageListingServiceModel>> DeliveredForUserAsync(User user);
     }
 }

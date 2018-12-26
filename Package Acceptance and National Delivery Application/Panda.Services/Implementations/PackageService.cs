@@ -1,6 +1,7 @@
 ﻿namespace Panda.Services.Implementations
 {
     using Data;
+    using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.EntityFrameworkCore;
     using Models;
@@ -23,10 +24,8 @@
             this.userManager = userManager;
         }
 
-        public async Task<IEnumerable<PackageListingServiceModel>> PendingForUserAsync(string username)
+        public async Task<IEnumerable<PackageListingServiceModel>> PendingForUserAsync(User user)
         {
-            var user = await this.GetCurrentUser(username);
-
             if (user == null)
             {
                 throw new InvalidOperationException();
@@ -41,10 +40,8 @@
             return packages;
         }
 
-        public async Task<IEnumerable<PackageListingServiceModel>> ShippedForUserAsync(string username)
+        public async Task<IEnumerable<PackageListingServiceModel>> ShippedForUserAsync(User user)
         {
-            var user = await this.GetCurrentUser(username);
-
             if (user == null)
             {
                 throw new InvalidOperationException();
@@ -59,10 +56,8 @@
             return packages;
         }
 
-        public async Task<IEnumerable<PackageListingServiceModel>> DeliveredForUser(string username)
+        public async Task<IEnumerable<PackageListingServiceModel>> DeliveredForUserAsync(User user)
         {
-            var user = await this.GetCurrentUser(username);
-
             if (user == null)
             {
                 throw new InvalidOperationException();
@@ -76,8 +71,5 @@
 
             return packages;
         }
-
-        private async Task<User> GetCurrentUser(string username)
-            => await this.userManager.FindByNameAsync(username);
     }
 }
