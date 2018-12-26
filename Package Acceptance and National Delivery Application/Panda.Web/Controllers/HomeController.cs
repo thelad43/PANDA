@@ -1,5 +1,6 @@
 ﻿namespace Panda.Web.Controllers
 {
+    using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.AspNetCore.Mvc;
     using Models;
@@ -20,14 +21,10 @@
             this.userManager = userManager;
         }
 
+        [Authorize]
         public async Task<IActionResult> Index()
         {
             var user = await this.GetUser();
-
-            if (user == null)
-            {
-                return View(new PackageListingViewModel { IsAuthenticated = false });
-            }
 
             var pending = await this.packages.PendingForUserAsync(user);
             var shipped = await this.packages.ShippedForUserAsync(user);
@@ -38,7 +35,6 @@
                 Pending = pending,
                 Shipped = shipped,
                 Delivered = delivered,
-                IsAuthenticated = true
             };
 
             return View(model);

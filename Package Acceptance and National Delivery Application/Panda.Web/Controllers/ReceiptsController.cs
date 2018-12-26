@@ -1,5 +1,6 @@
 ﻿namespace Panda.Web.Controllers
 {
+    using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.AspNetCore.Mvc;
     using Panda.Models;
@@ -17,11 +18,13 @@
             this.userManager = userManager;
         }
 
+        [Authorize]
         public async Task<IActionResult> Index()
         {
             return View(await this.receipts.ForUserAsync(await this.GetUser()));
         }
 
+        [Authorize]
         public async Task<IActionResult> Details(int id)
             => View(await this.receipts.ById(await this.GetUser(), id));
 
