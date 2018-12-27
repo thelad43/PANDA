@@ -2,6 +2,7 @@
 {
     using Microsoft.AspNetCore.Mvc;
     using Panda.Services;
+    using Panda.Web.Infrastructure.Extensions;
     using System.Threading.Tasks;
 
     public class PackagesController : BaseAdminController
@@ -16,13 +17,21 @@
         [HttpPost]
         public async Task<IActionResult> Ship(int id)
         {
-            return View();
+            var model = await this.packages.ShipAsync(id);
+
+            TempData.AddSuccessMessage("Package successfully shipped.");
+
+            return View(nameof(Details), model);
         }
 
         [HttpPost]
         public async Task<IActionResult> Deliver(int id)
         {
-            return View();
+            var model = await this.packages.DeliverAsync(id);
+
+            TempData.AddSuccessMessage("Package successfully delivered.");
+
+            return View(nameof(Details), model);
         }
 
         [HttpGet]
