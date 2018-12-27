@@ -40,6 +40,20 @@
             return receipt;
         }
 
+        public async Task CreateAsync(decimal fee, int packageId, string recipientId)
+        {
+            var receipt = new Receipt
+            {
+                Fee = fee,
+                IssuedOn = DateTime.UtcNow,
+                PackageId = packageId,
+                RecipientId = recipientId
+            };
+
+            await this.db.AddAsync(receipt);
+            await this.db.SaveChangesAsync();
+        }
+
         public async Task<IEnumerable<ReceiptServiceModel>> ForUserAsync(User user)
         {
             if (user == null)
@@ -52,7 +66,7 @@
                 .Where(r => r.RecipientId == user.Id)
                 .To<ReceiptServiceModel>()
                 .ToListAsync();
-           
+
             return receipts;
         }
     }

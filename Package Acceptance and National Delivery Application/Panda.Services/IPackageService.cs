@@ -8,6 +8,14 @@
 
     public interface IPackageService
     {
+        Task<AdminPackageServiceModel> CreateAsync(
+            string description,
+            double weigth,
+            string shippingAddress,
+            string recipientId);
+
+        Task AcquireAsync(int id);
+
         Task<IEnumerable<AdminPackageServiceModel>> AllDeliveredAsync();
 
         Task<IEnumerable<AdminPackageServiceModel>> AllPendingAsync();

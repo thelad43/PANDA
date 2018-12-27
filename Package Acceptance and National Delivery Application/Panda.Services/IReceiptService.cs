@@ -7,6 +7,8 @@
 
     public interface IReceiptService
     {
+        Task CreateAsync(decimal fee, int packageId, string recipientId);
+
         Task<ReceiptDetailsServiceModel> ById(User user, int id);
 
         Task<IEnumerable<ReceiptServiceModel>> ForUserAsync(User user);

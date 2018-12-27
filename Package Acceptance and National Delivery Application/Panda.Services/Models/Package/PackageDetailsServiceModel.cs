@@ -8,6 +8,8 @@
 
     public class PackageDetailsServiceModel : IMapFrom<Package>, IHaveCustomMapping
     {
+        public int Id { get; set; }
+
         public string Description { get; set; }
 
         public double Weight { get; set; }

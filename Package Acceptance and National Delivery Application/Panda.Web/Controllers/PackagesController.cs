@@ -5,6 +5,7 @@
     using Microsoft.AspNetCore.Mvc;
     using Panda.Models;
     using Panda.Services;
+    using Panda.Web.Infrastructure.Extensions;
     using System.Threading.Tasks;
 
     [Authorize]
@@ -22,7 +23,15 @@
         [HttpGet]
         public async Task<IActionResult> Details(int id)
             => View(await this.packages.DetailsByUserAsync(await this.GetUser(), id));
-        
+
+        [HttpPost]
+        public async Task<IActionResult> Acquire(int id)
+        {
+            await this.packages.AcquireAsync(id);
+            TempData.AddSuccessMessage("Package successfully acquired.");
+            return RedirectToAction(nameof(HomeController.Index), nameof(HomeController).Replace("Controller", string.Empty));
+        }
+
         private async Task<User> GetUser()
             => await this.userManager.GetUserAsync(HttpContext.User);
     }

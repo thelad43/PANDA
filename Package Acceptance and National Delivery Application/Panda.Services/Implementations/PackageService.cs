@@ -16,12 +16,35 @@
     public class PackageService : IPackageService
     {
         private readonly PandaDbContext db;
+        private readonly IReceiptService receipts;
         private readonly UserManager<User> userManager;
 
-        public PackageService(PandaDbContext db, UserManager<User> userManager)
+        public PackageService(
+            PandaDbContext db,
+            IReceiptService receipts,
+            UserManager<User> userManager)
         {
             this.db = db;
+            this.receipts = receipts;
             this.userManager = userManager;
+        }
+
+        public async Task AcquireAsync(int id)
+        {
+            var package = await this.db
+                .Packages
+                .FirstOrDefaultAsync(p => p.Id == id);
+
+            if (package == null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            package.Status = Status.Acquired;
+
+            await this.receipts.CreateAsync((decimal)package.Weight * 2.275M, package.Id, package.RecipientId);
+
+            await this.db.SaveChangesAsync();
         }
 
         public async Task<IEnumerable<AdminPackageServiceModel>> AllDeliveredAsync()
@@ -45,6 +68,41 @@
                 .To<AdminPackageServiceModel>()
                 .ToListAsync();
 
+        public async Task<AdminPackageServiceModel> CreateAsync(
+            string description,
+            double weigth,
+            string shippingAddress,
+            string recipientId)
+        {
+            var user = await this.userManager.FindByIdAsync(recipientId);
+
+            if (user == null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            var package = new Package
+            {
+                Description = description,
+                Weight = weigth,
+                ShippingAddress = shippingAddress,
+                Status = Status.Pending,
+                RecipientId = recipientId,
+            };
+
+            await this.db.AddAsync(package);
+
+            await this.db.SaveChangesAsync();
+
+            var model = await this.db
+                .Packages
+                .Where(p => p.Id == package.Id)
+                .To<AdminPackageServiceModel>()
+                .FirstOrDefaultAsync();
+
+            return model;
+        }
+
         public async Task<PackageDetailsServiceModel> DeliverAsync(int id)
         {
             var package = await this.db
@@ -60,8 +118,8 @@
 
             await this.db.SaveChangesAsync();
 
-            var model = await this.db.
-                Packages
+            var model = await this.db
+                .Packages
                 .Where(p => p.Id == id)
                 .To<PackageDetailsServiceModel>()
                 .FirstOrDefaultAsync();
@@ -148,8 +206,8 @@
 
             await this.db.SaveChangesAsync();
 
-            var model = await this.db.
-                Packages
+            var model = await this.db
+                .Packages
                 .Where(p => p.Id == id)
                 .To<PackageDetailsServiceModel>()
                 .FirstOrDefaultAsync();
