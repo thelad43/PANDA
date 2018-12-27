@@ -33,22 +33,26 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
 
-                        @if (User.Identity.IsAuthenticated)
+                        @if (User.IsInRole(AdministratorRole))
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Packages" asp-action="Pending">Pending</a>
+                                <a class="nav-link text-dark" asp-area="Admin" asp-controller="Packages" asp-action="Pending">Pending</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Packages" asp-action="Shipped">Shipped</a>
+                                <a class="nav-link text-dark" asp-area="Admin" asp-controller="Packages" asp-action="Shipped">Shipped</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Packages" asp-action="Delivered">Delivered</a>
+                                <a class="nav-link text-dark" asp-area="Admin" asp-controller="Packages" asp-action="Delivered">Delivered</a>
                             </li>
+                        }
+
+                        @if (User.Identity.IsAuthenticated)
+                        {
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Receipts" asp-action="Index">Receipts</a>
                             </li>
                         }
-                    </ul>
+                        </ul>
                 </div>
             </div>
         </nav>

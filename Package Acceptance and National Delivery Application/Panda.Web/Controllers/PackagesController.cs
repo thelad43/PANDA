@@ -7,6 +7,7 @@
     using Panda.Services;
     using System.Threading.Tasks;
 
+    [Authorize]
     public class PackagesController : Controller
     {
         private readonly IPackageService packages;
@@ -18,10 +19,10 @@
             this.userManager = userManager;
         }
 
-        [Authorize]
+        [HttpGet]
         public async Task<IActionResult> Details(int id)
-            => View(await this.packages.DetailsByUser(await this.GetUser(), id));
-
+            => View(await this.packages.DetailsByUserAsync(await this.GetUser(), id));
+        
         private async Task<User> GetUser()
             => await this.userManager.GetUserAsync(HttpContext.User);
     }

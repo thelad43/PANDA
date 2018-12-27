@@ -4,9 +4,10 @@
     using Microsoft.AspNetCore.Identity;
     using Microsoft.AspNetCore.Mvc;
     using Panda.Models;
-    using Panda.Services;
+    using Services;
     using System.Threading.Tasks;
 
+    [Authorize]
     public class ReceiptsController : Controller
     {
         private readonly IReceiptService receipts;
@@ -18,13 +19,13 @@
             this.userManager = userManager;
         }
 
-        [Authorize]
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
             return View(await this.receipts.ForUserAsync(await this.GetUser()));
         }
 
-        [Authorize]
+        [HttpGet]
         public async Task<IActionResult> Details(int id)
             => View(await this.receipts.ById(await this.GetUser(), id));
 

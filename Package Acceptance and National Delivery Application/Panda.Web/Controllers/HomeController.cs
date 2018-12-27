@@ -21,10 +21,15 @@
             this.userManager = userManager;
         }
 
-        [Authorize]
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
             var user = await this.GetUser();
+
+            if (user == null)
+            {
+                return View(new PackageListingViewModel { IsAuthenticated = false });
+            }
 
             var pending = await this.packages.PendingForUserAsync(user);
             var shipped = await this.packages.ShippedForUserAsync(user);
@@ -35,16 +40,19 @@
                 Pending = pending,
                 Shipped = shipped,
                 Delivered = delivered,
+                IsAuthenticated = true
             };
 
             return View(model);
         }
 
+        [HttpGet]
         public IActionResult Privacy()
         {
             return View();
         }
 
+        [HttpGet]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
