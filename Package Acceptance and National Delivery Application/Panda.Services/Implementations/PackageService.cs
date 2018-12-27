@@ -45,9 +45,28 @@
                 .To<AdminPackageServiceModel>()
                 .ToListAsync();
 
-        public Task<PackageDetailsServiceModel> DeliverAsync(int id)
+        public async Task<PackageDetailsServiceModel> DeliverAsync(int id)
         {
-            throw new NotImplementedException();
+            var package = await this.db
+                .Packages
+                .FirstOrDefaultAsync(p => p.Id == id);
+
+            if (package == null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            package.Status = Status.Delivered;
+
+            await this.db.SaveChangesAsync();
+
+            var model = await this.db.
+                Packages
+                .Where(p => p.Id == id)
+                .To<PackageDetailsServiceModel>()
+                .FirstOrDefaultAsync();
+
+            return model;
         }
 
         public async Task<IEnumerable<PackageListingServiceModel>> DeliveredForUserAsync(User user)
@@ -114,9 +133,28 @@
             return packages;
         }
 
-        public Task<PackageDetailsServiceModel> ShipAsync(int id)
+        public async Task<PackageDetailsServiceModel> ShipAsync(int id)
         {
-            throw new NotImplementedException();
+            var package = await this.db
+                .Packages
+                .FirstOrDefaultAsync(p => p.Id == id);
+
+            if (package == null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            package.Status = Status.Shipped;
+
+            await this.db.SaveChangesAsync();
+
+            var model = await this.db.
+                Packages
+                .Where(p => p.Id == id)
+                .To<PackageDetailsServiceModel>()
+                .FirstOrDefaultAsync();
+
+            return model;
         }
 
         public async Task<IEnumerable<PackageListingServiceModel>> ShippedForUserAsync(User user)
