@@ -19,7 +19,7 @@
             this.db = db;
         }
 
-        public async Task<ReceiptDetailsServiceModel> ById(User user, int id)
+        public async Task<ReceiptDetailsServiceModel> ByIdAsync(User user, int id)
         {
             if (user == null)
             {

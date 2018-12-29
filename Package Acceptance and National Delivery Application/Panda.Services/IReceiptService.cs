@@ -9,7 +9,7 @@
     {
         Task CreateAsync(decimal fee, int packageId, string recipientId);
 
-        Task<ReceiptDetailsServiceModel> ById(User user, int id);
+        Task<ReceiptDetailsServiceModel> ByIdAsync(User user, int id);
 
         Task<IEnumerable<ReceiptServiceModel>> ForUserAsync(User user);
     }

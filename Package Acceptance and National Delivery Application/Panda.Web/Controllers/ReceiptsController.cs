@@ -27,7 +27,7 @@
 
         [HttpGet]
         public async Task<IActionResult> Details(int id)
-            => View(await this.receipts.ById(await this.GetUser(), id));
+            => View(await this.receipts.ByIdAsync(await this.GetUser(), id));
 
         private async Task<User> GetUser()
             => await this.userManager.GetUserAsync(HttpContext.User);
