@@ -160,6 +160,11 @@
 
         public async Task<PackageDetailsServiceModel> DetailsByUserAsync(User user, int id)
         {
+            if (user == null)
+            {
+                throw new InvalidOperationException();
+            }
+
             var package = await this.db
                 .Packages
                 .Where(p => p.Id == id && p.RecipientId == user.Id)
