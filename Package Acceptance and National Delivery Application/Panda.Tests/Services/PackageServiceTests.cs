@@ -1,16 +1,19 @@
 ﻿namespace Panda.Tests.Services
 {
+    using Data;
     using FluentAssertions;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Options;
+    using Models;
     using Moq;
-    using Panda.Models;
     using Panda.Models.Enums;
     using Panda.Services;
     using Panda.Services.Implementations;
+    using Panda.Services.Models.Package;
     using System;
+    using System.Linq;
     using System.Threading.Tasks;
     using Xunit;
 
@@ -134,7 +137,9 @@
             var actualPackage = await db.Packages.FirstOrDefaultAsync();
 
             actualPackage
-                .Status.Should().Be(Status.Acquired);
+                .Status
+                .Should()
+                .Be(Status.Acquired);
         }
 
         [Fact]
@@ -209,7 +214,603 @@
                 .HaveCount(30);
         }
 
-        private static async Task AddPackagesToDb(Data.PandaDbContext db)
+        [Fact]
+        public void DeliverAsyncShouldThrowInvalidOperationExceptionIfPackageIsNull()
+        {
+            var db = DbInfrastructure.GetDatabase();
+
+            var mockUserManager = this.GetUserManagerMock();
+
+            mockUserManager
+                .Setup(m => m.FindByIdAsync(It.IsAny<string>()))
+                .Returns((string id) => db.Users.SingleOrDefaultAsync(u => u.Id == id));
+
+            var receiptService = new Mock<IReceiptService>().Object;
+
+            var packageService = new PackageService(db, receiptService, mockUserManager.Object);
+
+            Func<Task> func = async () => await packageService.DeliverAsync(5);
+
+            func.Should().Throw<InvalidOperationException>();
+        }
+
+        [Fact]
+        public async Task DeliverAsyncShouldMarkGivenPackageAsDelivered()
+        {
+            var db = DbInfrastructure.GetDatabase();
+
+            var mockUserManager = this.GetUserManagerMock();
+
+            mockUserManager
+                .Setup(m => m.FindByIdAsync(It.IsAny<string>()))
+                .Returns((string id) => db.Users.SingleOrDefaultAsync(u => u.Id == id));
+
+            var receiptService = new Mock<IReceiptService>().Object;
+
+            var packageService = new PackageService(db, receiptService, mockUserManager.Object);
+
+            await AddPackagesToDb(db);
+
+            var packages = await db
+                .Packages
+                .Where(p => p.Status == Status.Pending)
+                .OrderBy(p => Guid.NewGuid())
+                .ToListAsync();
+
+            var expectedPackage = packages.First();
+
+            await packageService.DeliverAsync(expectedPackage.Id);
+
+            var package = await db.Packages.FindAsync(expectedPackage.Id);
+
+            package
+                .Status
+                .Should()
+                .Be(Status.Delivered);
+        }
+
+        [Fact]
+        public void DeliveredForUserAsyncShouldThrowInvalidOperationExceptionIfUserIsNull()
+        {
+            var db = DbInfrastructure.GetDatabase();
+
+            var mockUserManager = this.GetUserManagerMock();
+
+            mockUserManager
+                .Setup(m => m.FindByIdAsync(It.IsAny<string>()))
+                .Returns((string id) => db.Users.SingleOrDefaultAsync(u => u.Id == id));
+
+            var receiptService = new Mock<IReceiptService>().Object;
+
+            var packageService = new PackageService(db, receiptService, mockUserManager.Object);
+
+            Func<Task> func = async () => await packageService.DeliveredForUserAsync(null);
+
+            func.Should().Throw<InvalidOperationException>();
+        }
+
+        [Fact]
+        public async Task DeliveredForUserAsyncShouldReturnAllDeliveredPackagesForGivenUser()
+        {
+            var db = DbInfrastructure.GetDatabase();
+
+            var mockUserManager = this.GetUserManagerMock();
+
+            mockUserManager
+                .Setup(m => m.FindByIdAsync(It.IsAny<string>()))
+                .Returns((string id) => db.Users.SingleOrDefaultAsync(u => u.Id == id));
+
+            var receiptService = new Mock<IReceiptService>().Object;
+
+            var packageService = new PackageService(db, receiptService, mockUserManager.Object);
+
+            var firstUser = new User
+            {
+                UserName = "Pesho"
+            };
+
+            var secondUser = new User
+            {
+                UserName = "Gosho"
+            };
+
+            await db.AddRangeAsync(firstUser, secondUser);
+            await db.SaveChangesAsync();
+
+            const int PackagesCount = 50;
+
+            for (var i = 0; i < PackagesCount; i++)
+            {
+                var package = new Package
+                {
+                    RecipientId = firstUser.Id,
+                    Status = Status.Delivered
+                };
+
+                await db.AddAsync(package);
+            }
+
+            for (var i = 0; i < 10; i++)
+            {
+                var package = new Package
+                {
+                    RecipientId = secondUser.Id
+                };
+
+                await db.AddAsync(package);
+            }
+
+            await db.SaveChangesAsync();
+
+            var actualDeliveredPackages = await packageService.DeliveredForUserAsync(firstUser);
+
+            actualDeliveredPackages
+                .Should()
+                .HaveCount(PackagesCount);
+        }
+
+        [Fact]
+        public void DetailsAsyncShouldThrowInvalidOperationExceptionIfPackageIsNotFound()
+        {
+            var db = DbInfrastructure.GetDatabase();
+
+            var mockUserManager = this.GetUserManagerMock();
+
+            mockUserManager
+                .Setup(m => m.FindByIdAsync(It.IsAny<string>()))
+                .Returns((string id) => db.Users.SingleOrDefaultAsync(u => u.Id == id));
+
+            var receiptService = new Mock<IReceiptService>().Object;
+
+            var packageService = new PackageService(db, receiptService, mockUserManager.Object);
+
+            Func<Task> func = async () => await packageService.DetailsAsync(15);
+
+            func.Should().Throw<InvalidOperationException>();
+        }
+
+        [Fact]
+        public async Task DetailsAsyncShouldReturnCorrectPackage()
+        {
+            var db = DbInfrastructure.GetDatabase();
+
+            var mockUserManager = this.GetUserManagerMock();
+
+            mockUserManager
+                .Setup(m => m.FindByIdAsync(It.IsAny<string>()))
+                .Returns((string id) => db.Users.SingleOrDefaultAsync(u => u.Id == id));
+
+            var receiptService = new Mock<IReceiptService>().Object;
+
+            var packageService = new PackageService(db, receiptService, mockUserManager.Object);
+
+            const int ActualWeight = 30;
+            const string ActualDescription = "Third";
+            const string ActualShippingAddress = "Adr3";
+
+            var firstPackage = new Package { Id = 1, Description = "First", Weight = 15, ShippingAddress = "Adr1" };
+            var secondPackage = new Package { Id = 2, Description = "Second", Weight = 20, ShippingAddress = "Adr2" };
+            var thirdPackage = new Package { Id = 3, Description = ActualDescription, Weight = ActualWeight, ShippingAddress = ActualShippingAddress };
+
+            await db.AddRangeAsync(firstPackage, secondPackage, thirdPackage);
+            await db.SaveChangesAsync();
+
+            var package = await packageService.DetailsAsync(3);
+
+            package
+                .Should()
+                .Match<PackageDetailsServiceModel>(p => p.Description == ActualDescription)
+                .And
+                .Match<PackageDetailsServiceModel>(p => p.Weight == ActualWeight)
+                .And
+                .Match<PackageDetailsServiceModel>(p => p.ShippingAddress == ActualShippingAddress);
+        }
+
+        [Fact]
+        public void DetailsByUserAsyncShouldThrowInvalidOperationExceptionIfUserIsNull()
+        {
+            var db = DbInfrastructure.GetDatabase();
+
+            var mockUserManager = this.GetUserManagerMock();
+
+            mockUserManager
+                .Setup(m => m.FindByIdAsync(It.IsAny<string>()))
+                .Returns((string id) => db.Users.SingleOrDefaultAsync(u => u.Id == id));
+
+            var receiptService = new Mock<IReceiptService>().Object;
+
+            var packageService = new PackageService(db, receiptService, mockUserManager.Object);
+
+            Func<Task> func = async () => await packageService.DetailsByUserAsync(null, 10);
+
+            func.Should().Throw<InvalidOperationException>();
+        }
+
+        [Fact]
+        public async Task DetailsByUserAsyncShouldThrowInvalidOperationExceptionIfPackageIsNotFound()
+        {
+            var db = DbInfrastructure.GetDatabase();
+
+            var mockUserManager = this.GetUserManagerMock();
+
+            mockUserManager
+                .Setup(m => m.FindByIdAsync(It.IsAny<string>()))
+                .Returns((string id) => db.Users.SingleOrDefaultAsync(u => u.Id == id));
+
+            var receiptService = new Mock<IReceiptService>().Object;
+
+            var packageService = new PackageService(db, receiptService, mockUserManager.Object);
+
+            var user = new User
+            {
+                UserName = "Gosho Ivanov"
+            };
+
+            await db.AddAsync(user);
+            await db.SaveChangesAsync();
+
+            Func<Task> func = async () => await packageService.DetailsByUserAsync(user, 5);
+
+            func.Should().Throw<InvalidOperationException>();
+        }
+
+        [Fact]
+        public async Task DetailsByUserAsyncShouldThrowInvalidOperationExceptionIfGivenUserIsNotOwnership()
+        {
+            var db = DbInfrastructure.GetDatabase();
+
+            var mockUserManager = this.GetUserManagerMock();
+
+            mockUserManager
+                .Setup(m => m.FindByIdAsync(It.IsAny<string>()))
+                .Returns((string id) => db.Users.SingleOrDefaultAsync(u => u.Id == id));
+
+            var receiptService = new Mock<IReceiptService>().Object;
+
+            var packageService = new PackageService(db, receiptService, mockUserManager.Object);
+
+            var firstUser = new User
+            {
+                UserName = "Ivan"
+            };
+
+            var secondUser = new User
+            {
+                UserName = "Drago"
+            };
+
+            await db.AddRangeAsync(firstUser, secondUser);
+            await db.SaveChangesAsync();
+
+            for (var i = 0; i < 50; i++)
+            {
+                var package = new Package
+                {
+                    RecipientId = firstUser.Id,
+                    Description = $"Descr {i}",
+                    Status = Status.Shipped
+                };
+
+                await db.AddAsync(package);
+            }
+
+            for (var i = 0; i < 10; i++)
+            {
+                var package = new Package
+                {
+                    RecipientId = secondUser.Id
+                };
+
+                await db.AddAsync(package);
+            }
+
+            Func<Task> func = async () => await packageService.DetailsByUserAsync(secondUser, 3);
+
+            func.Should().Throw<InvalidOperationException>();
+        }
+
+        [Fact]
+        public async Task DetailsByUserAsyncShouldReturnCorrectPackage()
+        {
+            var db = DbInfrastructure.GetDatabase();
+
+            var mockUserManager = this.GetUserManagerMock();
+
+            mockUserManager
+                .Setup(m => m.FindByIdAsync(It.IsAny<string>()))
+                .Returns((string id) => db.Users.SingleOrDefaultAsync(u => u.Id == id));
+
+            var receiptService = new Mock<IReceiptService>().Object;
+
+            var packageService = new PackageService(db, receiptService, mockUserManager.Object);
+
+            var firstUser = new User
+            {
+                UserName = "Ivan"
+            };
+
+            var secondUser = new User
+            {
+                UserName = "Drago"
+            };
+
+            await db.AddRangeAsync(firstUser, secondUser);
+            await db.SaveChangesAsync();
+
+            var packageId = 0;
+
+            for (var i = 0; i < 50; i++)
+            {
+                var package = new Package
+                {
+                    RecipientId = firstUser.Id,
+                    Description = $"Descr {i}",
+                    Status = Status.Shipped
+                };
+
+                await db.AddAsync(package);
+                await db.SaveChangesAsync();
+
+                if (i == 2)
+                {
+                    packageId = package.Id;
+                }
+            }
+
+            for (var i = 0; i < 10; i++)
+            {
+                var package = new Package
+                {
+                    RecipientId = secondUser.Id
+                };
+
+                await db.AddAsync(package);
+            }
+
+            await db.SaveChangesAsync();
+
+            var actualPackage = await packageService.DetailsByUserAsync(firstUser, packageId);
+
+            actualPackage
+                .Should()
+                .Match<PackageDetailsServiceModel>(p => p.Id == packageId)
+                .And
+                .Match<PackageDetailsServiceModel>(p => p.Description == "Descr 2")
+                .And
+                .Match<PackageDetailsServiceModel>(p => p.Status == Status.Shipped)
+                .And
+                .Match<PackageDetailsServiceModel>(p => p.RecipientName == "Ivan");
+        }
+
+        [Fact]
+        public void PendingForUserAsyncShouldThrowInvalidOperationExceptionIfUserIsNull()
+        {
+            var db = DbInfrastructure.GetDatabase();
+
+            var mockUserManager = this.GetUserManagerMock();
+
+            mockUserManager
+                .Setup(m => m.FindByIdAsync(It.IsAny<string>()))
+                .Returns((string id) => db.Users.SingleOrDefaultAsync(u => u.Id == id));
+
+            var receiptService = new Mock<IReceiptService>().Object;
+
+            var packageService = new PackageService(db, receiptService, mockUserManager.Object);
+
+            Func<Task> func = async () => await packageService.PendingForUserAsync(null);
+
+            func.Should().Throw<InvalidOperationException>();
+        }
+
+        [Fact]
+        public async Task PendingForUserAsyncShouldReturnAllPendingPackagesForGivenUser()
+        {
+            var db = DbInfrastructure.GetDatabase();
+
+            var mockUserManager = this.GetUserManagerMock();
+
+            mockUserManager
+                .Setup(m => m.FindByIdAsync(It.IsAny<string>()))
+                .Returns((string id) => db.Users.SingleOrDefaultAsync(u => u.Id == id));
+
+            var receiptService = new Mock<IReceiptService>().Object;
+
+            var packageService = new PackageService(db, receiptService, mockUserManager.Object);
+
+            var firstUser = new User
+            {
+                UserName = "Stamat"
+            };
+
+            var secondUser = new User
+            {
+                UserName = "Ted"
+            };
+
+            await db.AddRangeAsync(firstUser, secondUser);
+            await db.SaveChangesAsync();
+
+            for (var i = 0; i < 50; i++)
+            {
+                var package = new Package
+                {
+                    RecipientId = firstUser.Id,
+                    Status = Status.Delivered
+                };
+
+                await db.AddAsync(package);
+            }
+
+            const int PackagesCount = 25;
+
+            for (var i = 0; i < PackagesCount; i++)
+            {
+                var package = new Package
+                {
+                    RecipientId = secondUser.Id,
+                    Status = Status.Pending
+                };
+
+                await db.AddAsync(package);
+            }
+
+            await db.SaveChangesAsync();
+
+            var actualPendingPackages = await packageService.PendingForUserAsync(secondUser);
+
+            actualPendingPackages
+                .Should()
+                .HaveCount(PackagesCount);
+        }
+
+        [Fact]
+        public void ShipAsyncShouldThrowInvalidOperationExceptionIfPackageIsNotFound()
+        {
+            var db = DbInfrastructure.GetDatabase();
+
+            var mockUserManager = this.GetUserManagerMock();
+
+            mockUserManager
+                .Setup(m => m.FindByIdAsync(It.IsAny<string>()))
+                .Returns((string id) => db.Users.SingleOrDefaultAsync(u => u.Id == id));
+
+            var receiptService = new Mock<IReceiptService>().Object;
+
+            var packageService = new PackageService(db, receiptService, mockUserManager.Object);
+
+            Func<Task> func = async () => await packageService.ShipAsync(55);
+
+            func.Should().Throw<InvalidOperationException>();
+        }
+
+        [Fact]
+        public async Task ShipAsyncShouldMarkGivenPackageAsShipped()
+        {
+            var db = DbInfrastructure.GetDatabase();
+
+            var mockUserManager = this.GetUserManagerMock();
+
+            mockUserManager
+                .Setup(m => m.FindByIdAsync(It.IsAny<string>()))
+                .Returns((string id) => db.Users.SingleOrDefaultAsync(u => u.Id == id));
+
+            var receiptService = new Mock<IReceiptService>().Object;
+
+            var packageService = new PackageService(db, receiptService, mockUserManager.Object);
+
+            var package = new Package
+            {
+                Description = Description,
+                ShippingAddress = ShippingAddress,
+                Weight = Weight,
+                Status = Status.Pending
+            };
+
+            await db.AddAsync(package);
+            await db.SaveChangesAsync();
+
+            var createdPackage = await db.Packages.FirstOrDefaultAsync();
+
+            await packageService.ShipAsync(createdPackage.Id);
+
+            var actualPackage = await db.Packages.FirstOrDefaultAsync();
+
+            actualPackage
+                .Status
+                .Should()
+                .Be(Status.Shipped);
+        }
+
+        [Fact]
+        public void ShippedForUserAsyncShouldThrowInvalidOperationExceptionIfUserIsNull()
+        {
+            var db = DbInfrastructure.GetDatabase();
+
+            var mockUserManager = this.GetUserManagerMock();
+
+            mockUserManager
+                .Setup(m => m.FindByIdAsync(It.IsAny<string>()))
+                .Returns((string id) => db.Users.SingleOrDefaultAsync(u => u.Id == id));
+
+            var receiptService = new Mock<IReceiptService>().Object;
+
+            var packageService = new PackageService(db, receiptService, mockUserManager.Object);
+
+            Func<Task> func = async () => await packageService.ShippedForUserAsync(null);
+
+            func.Should().Throw<InvalidOperationException>();
+        }
+
+        [Fact]
+        public async Task ShippedForUserAsyncShouldReturnAllShippedPackagesForGivenUser()
+        {
+            var db = DbInfrastructure.GetDatabase();
+
+            var mockUserManager = this.GetUserManagerMock();
+
+            mockUserManager
+                .Setup(m => m.FindByIdAsync(It.IsAny<string>()))
+                .Returns((string id) => db.Users.SingleOrDefaultAsync(u => u.Id == id));
+
+            var receiptService = new Mock<IReceiptService>().Object;
+
+            var packageService = new PackageService(db, receiptService, mockUserManager.Object);
+
+            var firstUser = new User
+            {
+                UserName = "Georgi"
+            };
+
+            var secondUser = new User
+            {
+                UserName = "Ivana"
+            };
+
+            await db.AddRangeAsync(firstUser, secondUser);
+            await db.SaveChangesAsync();
+
+            for (var i = 0; i < 100; i++)
+            {
+                var package = new Package
+                {
+                    RecipientId = firstUser.Id,
+                    Status = Status.Delivered
+                };
+
+                await db.AddAsync(package);
+            }
+
+            const int PackagesCount = 25;
+
+            var ids = new int[PackagesCount];
+
+            for (var i = 0; i < PackagesCount; i++)
+            {
+                var package = new Package
+                {
+                    RecipientId = secondUser.Id,
+                    Status = Status.Pending
+                };
+
+                await db.AddAsync(package);
+                await db.SaveChangesAsync();
+
+                ids[i] = package.Id;
+            }
+
+            for (var i = 0; i < PackagesCount; i++)
+            {
+                await packageService.ShipAsync(ids[i]);
+            }
+
+            var actualShippedPackages = await packageService.ShippedForUserAsync(secondUser);
+
+            actualShippedPackages
+                .Should()
+                .HaveCount(PackagesCount);
+        }
+
+        private static async Task AddPackagesToDb(PandaDbContext db)
         {
             for (var i = 0; i < 10; i++)
             {
